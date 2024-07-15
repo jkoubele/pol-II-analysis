@@ -28,6 +28,7 @@ RUN tar -xzf 2.7.11b.tar.gz
 RUN rm 2.7.11b.tar.gz
 RUN apt-get install build-essential vim-common zlib1g-dev xxd -y
 RUN make -C /STAR-2.7.11b/source STAR
+ENV PATH="/STAR-2.7.11b/bin/Linux_x86_64:$PATH"
 
 # Download and compile samtools, also install dependencies
 RUN curl -L -O https://github.com/samtools/samtools/releases/download/1.20/samtools-1.20.tar.bz2
