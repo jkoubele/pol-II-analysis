@@ -7,7 +7,8 @@ usage() {
     exit 1
 }
 
-repository_path="$(dirname "$(dirname "$0")")"
+script_directory="$(cd "$(dirname "$0")" && pwd)"
+repository_path="$(dirname "$script_directory")"
 
 # Variables to hold arguments
 input_folder=""
