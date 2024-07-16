@@ -57,7 +57,7 @@ mkdir "$output_folder" -p
 for sub_folder in "$input_folder"/*; do
   sample_name=$(basename "$sub_folder")
   if [ $run_locally ]; then
-    sh repository_path/fastqc.sh -i sub_folder -o output_folder/"$sample_name" \
+    sh "$repository_path"/fastqc.sh -i sub_folder -o output_folder/"$sample_name" \
     -d "$docker_image_path"
   else
     sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
