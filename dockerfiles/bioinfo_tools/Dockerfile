@@ -34,7 +34,7 @@ ENV PATH="/STAR-2.7.11b/bin/Linux_x86_64_static:$PATH"
 RUN curl -L -O https://github.com/samtools/samtools/releases/download/1.20/samtools-1.20.tar.bz2
 RUN tar -xvjf samtools-1.20.tar.bz2
 RUN rm samtools-1.20.tar.bz2
-RUN apt-get install libncurses-dev liblzma-dev  libbz2-dev libcurl4-openssl-dev -y
+RUN apt-get install libncurses-dev liblzma-dev libbz2-dev libcurl4-openssl-dev -y
 RUN make -C /samtools-1.20
 RUN make -C /samtools-1.20 install
 
