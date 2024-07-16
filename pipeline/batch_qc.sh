@@ -18,7 +18,7 @@ docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
 slurm_log_folder="$repository_path"/slurm_logs
 
 # Parse command line arguments
-while getopts ":i:o:d:l:L:" opt; do
+while getopts ":i:o:d:l:L" opt; do
     case ${opt} in
         i )
             input_folder=$OPTARG
