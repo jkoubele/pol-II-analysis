@@ -2,18 +2,20 @@
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 -i <input_folder> -o <output_folder> -d <docker_image_path> "
-    echo "-l <log_folder> -e <error_folder>"
+    echo "Usage: $0 -i <input_folder> -o <output_folder>"
+    echo "[-d <docker_image_path> -l <log_folder> -e <error_folder>]"
     exit 1
 }
+
+repository_path="$(dirname "$(dirname "$0")")"
 
 # Variables to hold arguments
 input_folder=""
 output_folder=""
-docker_image_path=""
 
-log_folder=""
-error_folder=""
+docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
+log_folder="$repository_path"/slurm_logs
+error_folder="$repository_path"/slurm_errors
 
 # Parse command line arguments
 while getopts ":i:o:d:l:e:" opt; do
@@ -45,8 +47,7 @@ while getopts ":i:o:d:l:e:" opt; do
 done
 
 # Check if mandatory arguments are provided
-if [ -z "$input_folder" ] || [ -z "$output_folder" ] || [ -z "$docker_image_path" ] || \
-[ -z "$log_folder" ] || [ -z "$error_folder" ]; then
+if [ -z "$input_folder" ] || [ -z "$output_folder" ]; then
     echo "Error: Missing mandatory arguments"
     usage
 fi
