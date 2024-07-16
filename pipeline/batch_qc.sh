@@ -3,7 +3,7 @@
 # Function to display usage information
 usage() {
     echo "Usage: $0 -i <input_folder> -o <output_folder>"
-    echo "[-d <docker_image_path> -l <log_folder> -e <error_folder>]"
+    echo "[-d <docker_image_path>] [-l <slurm_log_folder>] [-L]"
     exit 1
 }
 
@@ -12,13 +12,12 @@ repository_path="$(dirname "$(dirname "$0")")"
 # Variables to hold arguments
 input_folder=""
 output_folder=""
-
+run_locally=false
 docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
-log_folder="$repository_path"/slurm_logs
-error_folder="$repository_path"/slurm_errors
+slurm_log_folder="$repository_path"/slurm_logs
 
 # Parse command line arguments
-while getopts ":i:o:d:l:e:" opt; do
+while getopts ":i:o:d:l:L:" opt; do
     case ${opt} in
         i )
             input_folder=$OPTARG
@@ -30,11 +29,11 @@ while getopts ":i:o:d:l:e:" opt; do
             docker_image_path=$OPTARG
             ;;
         l )
-            log_folder=$OPTARG
+            slurm_log_folder=$OPTARG
             ;;
-        e )
-            error_folder=$OPTARG
-            ;;
+        L )
+          run_locally=true
+          ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
             usage
@@ -55,9 +54,14 @@ fi
 # Create output folder if it doesn't exist
 mkdir "$output_folder" -p
 
-for sub_folder in $input_folder; do
-  file_name=$(basename "$sub_folder")
-  dir_name=$(dirname "$sub_folder")
-  echo "$file_name"
-  echo "$dir_name"
+for sub_folder in "$input_folder"/*; do
+  sample_name=$(basename "$sub_folder")
+  if [ $run_locally ]; then
+    sh repository_path/fastqc.sh -i sub_folder -o output_folder/"$sample_name" \
+    -d "$docker_image_path"
+  else
+    sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
+    "$repository_path"/fastqc.sh -i sub_folder -o output_folder/"$sample_name" \
+    -d "$docker_image_path"
+  fi
 done
