@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=FASTQC
 #SBATCH --partition=all
-#SBATCH --ntasks=3
+#SBATCH --ntasks=12
 
 # Function to display usage information
 usage() {

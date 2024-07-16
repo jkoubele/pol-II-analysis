@@ -1,2 +1,1 @@
-#SBATCH --output=/data/public/jkoubele/cluster_logs/%j_%x.log
-#SBATCH --error=/data/public/jkoubele/cluster_errors/%j_%x.err
+ - First QC: ```sh batch_qc.sh -i /data/public/jkoubele/cell_cultures_mtor/FASTQ -o /data/public/jkoubele/cell_cultures_mtor/QC_before_trimming```
