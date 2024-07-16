@@ -33,8 +33,8 @@ while getopts ":i:o:d:l:L:" opt; do
             slurm_log_folder=$OPTARG
             ;;
         L )
-          run_locally=true
-          ;;
+            run_locally=true
+            ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
             usage
