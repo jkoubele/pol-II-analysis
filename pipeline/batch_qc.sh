@@ -57,7 +57,7 @@ mkdir "$output_folder" -p
 
 for sub_folder in "$input_folder"/*; do
   sample_name=$(basename "$sub_folder")
-  if [ $run_locally ]; then
+  if [ "$run_locally" = true ]; then
     echo "Processing sample $sample_name"
     sh "$repository_path"/scripts/fastqc.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
     -d "$docker_image_path"
