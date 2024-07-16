@@ -58,6 +58,6 @@ mkdir "$output_folder" -p
 # Run FASTQC in docker
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \
 --security-opt seccomp=unconfined \
-bioinfo_tools /bin/sh -c "/FastQC/fastqc -t 3 -o /output_folder /input_folder/R1.fastq.gz; \
-/FastQC/fastqc -t 3 -o /output_folder /input_folder/R2.fastq.gz; \
+bioinfo_tools /bin/sh -c "/FastQC/fastqc -t 12 -o /output_folder /input_folder/R1.fastq.gz; \
+/FastQC/fastqc -t 12 -o /output_folder /input_folder/R2.fastq.gz; \
 chmod 777 -R /output_folder"
