@@ -38,9 +38,16 @@ RUN apt-get install libncurses-dev liblzma-dev libbz2-dev libcurl4-openssl-dev -
 RUN make -C /samtools-1.20
 RUN make -C /samtools-1.20 install
 
-# Install software-properties-common, which also includes Python
-RUN apt-get install software-properties-common -y
-RUN apt-get update
+# Install Python 3.11
+RUN apt install libssl-dev libncurses5-dev libsqlite3-dev libreadline-dev libtk8.6 libgdm-dev libdb4o-cil-dev libpcap-dev -y
+RUN curl -L -O https://www.python.org/ftp/python/3.11.9/Python-3.11.9.tgz
+RUN tar xzf Python-3.11.9.tgz
+RUN rm Python-3.11.9.tgz
+RUN cd Python-3.11.9; ./configure --enable-optimizations
+RUN make -j 4 -C /Python-3.11.9
+RUN make -j 4 -C /Python-3.11.9 install
+COPY . .
+RUN pip3 install -r requirements.txt
 
 # Install bedtools
 RUN curl -L -O https://github.com/arq5x/bedtools2/archive/refs/tags/v2.31.1.zip
@@ -48,6 +55,3 @@ RUN unzip v2.31.1.zip
 RUN rm v2.31.1.zip
 RUN make -C /bedtools2-2.31.1
 ENV PATH="/bedtools2-2.31.1/bin:$PATH"
-
-
-
