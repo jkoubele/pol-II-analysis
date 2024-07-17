@@ -1,2 +1,4 @@
  - First QC: ```sh batch_qc.sh -i /data/public/jkoubele/cell_cultures_mtor/FASTQ -o /data/public/jkoubele/cell_cultures_mtor/QC_before_trimming```
  - Detecting adapters: ```sh batch_detect_adapers.sh -i /data/public/jkoubele/cell_cultures_mtor/FASTQ -o /data/public/jkoubele/cell_cultures_mtor/detected_adapters```
+ - Aggregate adapters: ```sh run_aggregate_adapters.sh -i /data/public/jkoubele/cell_cultures_mtor/detected_adapters -o /data/public/jkoubele/cell_cultures_mtor/aggregated_adapters```
+   After that, check if adapter were consistent across samples (the output will contain either aggregated adapters or error message.)
