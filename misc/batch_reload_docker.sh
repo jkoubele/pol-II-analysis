@@ -36,5 +36,5 @@ node_list=$(sinfo -N -h -o "%N" | sort | uniq)
 for node in $node_list; do
     echo "Submitting job to reload docker on node: $node"
     sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
-    "$repository_path"/misc/reload_docker_on_node.sh -d "$docker_image_path"
+    --nodelist="$node" "$repository_path"/misc/reload_docker_on_node.sh -d "$docker_image_path"
 done
