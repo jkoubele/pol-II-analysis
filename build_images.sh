@@ -33,8 +33,10 @@ while getopts ":o:" opt; do
   esac
 done
 
-# Script logic below
+# Create output folder if it doesn't exist
 mkdir "$output_folder" -p
 
+# Ensure that latest debian base image is used
+docker pull debian:latest
 docker build -t bioinfo_tools "$(dirname "$0")/dockerfiles/bioinfo_tools"
 docker save -o "$output_folder"/bioinfo_tools.tar bioinfo_tools
