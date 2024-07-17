@@ -1,15 +1,14 @@
 #!/bin/bash
 
 #SBATCH --job-name=reload_docker
+#SBATCH --partition=all
 
 usage() {
-    echo "Usage: $0 [-d <docker_image_path>]"
+    echo "Usage: $0 -d <docker_image_path>"
     exit 1
 }
 
-script_directory="$(cd "$(dirname "$0")" && pwd)"
-repository_path="$(dirname "$script_directory")"
-docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
+docker_image_path=""
 
 # Parse command line arguments
 while getopts ":d:" opt; do
@@ -27,6 +26,12 @@ while getopts ":d:" opt; do
             ;;
     esac
 done
+
+# Check if mandatory arguments are provided
+if [ -z "$docker_image_path" ]; then
+    echo "Error: Missing mandatory arguments"
+    usage
+fi
 
 docker image prune -a -f
 docker load -i "$docker_image_path"

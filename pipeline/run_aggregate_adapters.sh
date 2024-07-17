@@ -17,6 +17,7 @@ run_locally=false
 docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
 slurm_log_folder="$repository_path"/slurm_logs
 
+
 # Parse command line arguments
 while getopts ":i:o:d:l:L" opt; do
     case ${opt} in
@@ -62,5 +63,5 @@ if [ "$run_locally" = true ]; then
 else
   sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
   "$repository_path"/scripts/aggregate_adapters.sh -i "$input_folder" -o "$output_folder" \
-  -d "$docker_image_path"
+  -d "$docker_image_path" -s "$repository_path/scripts"
 fi

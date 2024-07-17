@@ -6,20 +6,19 @@
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 -i <input_folder> -o <output_folder> [-d <docker_image_path>]"
+    echo "Usage: $0 -i <input_folder> -o <output_folder>"
+    echo "-d <docker_image_path> -s <script_folder>"
     exit 1
 }
-
-script_directory="$(cd "$(dirname "$0")" && pwd)"
-repository_path="$(dirname "$script_directory")"
 
 # Variables to hold arguments
 input_folder=""
 output_folder=""
-docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
+docker_image_path=""
+script_folder=""
 
 # Parse command line arguments
-while getopts ":i:o:d:" opt; do
+while getopts ":i:o:d:s:" opt; do
     case ${opt} in
         i )
             input_folder=$OPTARG
@@ -29,6 +28,9 @@ while getopts ":i:o:d:" opt; do
             ;;
         d )
             docker_image_path=$OPTARG
+            ;;
+        s )
+            script_folder=$OPTARG
             ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
@@ -42,7 +44,8 @@ while getopts ":i:o:d:" opt; do
 done
 
 # Check if mandatory arguments are provided
-if [ -z "$input_folder" ] || [ -z "$output_folder" ]; then
+if [ -z "$input_folder" ] || [ -z "$output_folder" ] || [ -z "$docker_image_path" ] \
+|| [ -z "$script_folder" ]; then
     echo "Error: Missing mandatory arguments"
     usage
 fi
@@ -57,7 +60,7 @@ mkdir "$output_folder" -p
 
 # Aggregate adapters
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \
--v "$script_directory":/scripts --security-opt seccomp=unconfined \
+-v "$script_folder":/scripts --security-opt seccomp=unconfined \
 bioinfo_tools /bin/sh -c "python3 /scripts/aggregate_adapters.py \
 --input_folder /input_folder --output_folder /output_folder;  \
 chmod 777 -R /output_folder"
