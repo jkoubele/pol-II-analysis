@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=fastqc
+#SBATCH --job-name=detect_adapters
 #SBATCH --partition=all
 #SBATCH --ntasks=12
 
@@ -55,9 +55,9 @@ fi
 # Create output folder if it doesn't exist
 mkdir "$output_folder" -p
 
-# Run FASTQC in docker
+# Run Atria to detect adapters
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \
 --security-opt seccomp=unconfined \
-bioinfo_tools /bin/sh -c "/FastQC/fastqc -t 12 -o /output_folder /input_folder/R1.fastq.gz; \
-/FastQC/fastqc -t 12 -o /output_folder /input_folder/R2.fastq.gz; \
+bioinfo_tools /bin/sh -c "atria --read1 /input_folder/R1.fastq.gz --read2 /input_folder/R2.fastq.gz --detect-adapter; \
+mv atria_adapter_detect_summary* /output_folder/detected_adapters.tsv; \
 chmod 777 -R /output_folder"
