@@ -75,5 +75,5 @@ bioinfo_tools /bin/sh -c "STAR \
 --outSJfilterOverhangMin 15 15 15 15 \
 --alignSJoverhangMin 15 \
 --alignSJDBoverhangMin 15; \
-samtools index Aligned.sortedByCoord.out.bam; \
+samtools index /output_folder/Aligned.sortedByCoord.out.bam; \
 chmod 777 -R /output_folder"
