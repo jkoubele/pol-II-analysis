@@ -68,7 +68,7 @@ bioinfo_tools /bin/sh -c "STAR \
 --outFileNamePrefix /output_folder/ \
 --outSAMtype BAM SortedByCoordinate \
 --outSAMattributes GX GN \
---genomeLoad LoadAndKeep \
+--quantMode GeneCounts \
 --limitBAMsortRAM 50000000000 \
 --outWigType bedGraph \
 --outWigNorm RPM \
