@@ -58,10 +58,10 @@ mkdir "$output_folder" -p
 
 
 if [ "$run_locally" = true ]; then
-  sh "$repository_path"/scripts/aggregate_adapters.sh -i "$input_folder" -o "$output_folder" \
+  sh "$repository_path"/scripts/infer_strandedness.sh -i "$input_folder" -o "$output_folder" \
   -d "$docker_image_path" -s "$repository_path/scripts"
 else
   sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
-  "$repository_path"/scripts/aggregate_adapters.sh -i "$input_folder" -o "$output_folder" \
+  "$repository_path"/scripts/infer_strandedness.sh -i "$input_folder" -o "$output_folder" \
   -d "$docker_image_path" -s "$repository_path/scripts"
 fi

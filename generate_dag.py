@@ -62,6 +62,9 @@ if __name__ == "__main__":
     graph.edge('BAM', 'intron_slopes_comparison', label='SJ info')
     graph.edge('BAM_before_deduplication', 'intron_slopes_comparison', color=umi_color)
 
+    graph.node('strandedness_info', color=default_color)
+    graph.edge('BAM', 'strandedness_info', label='Infer strandedness')
+
     graph.view()
 
     (graph_for_render,) = pydot.graph_from_dot_file('dag.gv')
