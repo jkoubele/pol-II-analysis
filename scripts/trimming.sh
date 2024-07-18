@@ -57,10 +57,16 @@ fi
 # Create output folder if it doesn't exist
 mkdir "$output_folder" -p
 
-# Load detected adapters
-adapters=$(cat "$aggregated_adapters_folder/aggregated_adapters.txt")
-adapter_1="${adapters::-17}"
-adapter_2="${adapters:17:33}"
+# Load detected adapters; end the program if they were not detected successfully.
+adapters_successfully_detected=$(jq '.adapters_successfully_detected' \
+"$aggregated_adapters_folder/aggregated_adapters.json")
+if [ "$adapters_successfully_detected" != true ]; then
+  echo "Adapter were not detected consistently across samples by Atria!" 1>&2
+  exit 1
+fi
+
+adapter_1=$(jq '.adapter_1' "$aggregated_adapters_folder/aggregated_adapters.json")
+adapter_2=$(jq '.adapter_2' "$aggregated_adapters_folder/aggregated_adapters.json")
 
 # Run Atria for trimming
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \

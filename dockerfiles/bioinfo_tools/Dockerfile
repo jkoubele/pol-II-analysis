@@ -55,3 +55,6 @@ RUN unzip v2.31.1.zip
 RUN rm v2.31.1.zip
 RUN make -C /bedtools2-2.31.1
 ENV PATH="/bedtools2-2.31.1/bin:$PATH"
+
+# Install jq por parsing JSON
+RUN apt install jq -y
