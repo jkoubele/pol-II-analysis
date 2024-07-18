@@ -70,7 +70,7 @@ mkdir "$output_folder" -p
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \
 -v "$genome_folder":/genome_folder --security-opt seccomp=unconfined \
 bioinfo_tools /bin/sh -c "featureCounts -p --countReadPairs -s $strandedness -T 12 \
--t gene -a $genome_folder/$annotation_gtf_file_name \
+-t gene -a /genome_folder/$annotation_gtf_file_name \
 -o /output_folder/feature_counts.tsv \
 /input_folder/Aligned.sortedByCoord.out.bam;
 chmod 777 -R /output_folder"
