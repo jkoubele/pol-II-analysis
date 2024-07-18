@@ -4,3 +4,4 @@
    After that, check if the adapters were consistent across samples (the output will contain either aggregated adapters or error message.)
  - Trimming reads: ```sh batch_trimming.sh -i /data/public/jkoubele/cell_cultures_mtor/FASTQ -o /data/public/jkoubele/cell_cultures_mtor/FASTQ_trimmed -a /data/public/jkoubele/cell_cultures_mtor/aggregated_adapters```
  - QC after trimming: ```sh batch_qc.sh -i /data/public/jkoubele/cell_cultures_mtor/FASTQ_trimmed/ -o /data/public/jkoubele/cell_cultures_mtor/QC_after_trimming```
+ - Alignment: ```sh batch_align.sh -i /data/public/jkoubele/cell_cultures_mtor/FASTQ_trimmed/ -o /data/public/jkoubele/cell_cultures_mtor/BAM -g /data/public/jkoubele/reference_genomes/GRCm39```
