@@ -7,8 +7,8 @@ import pandas as pd
 
 def infer_strandedness(input_folder: Path, output_folder: Path) -> None:
     """
-    Infer strandedness of samples from feature counts files produced by STAR and
-    writes output to JSON.
+    Infer strandedness of samples from feature counts files produced by STAR, using
+    the amount of unmapped reads as a criteria. Writes output to a JSON file.
     :param input_folder: Input folder, containing subfolder for each sample. Each subfolder
     is expected to be the result of STAR alignment and contains the file 'ReadsPerGene.out.tab'.
     :param output_folder: Output folder to which output JSON will be written
