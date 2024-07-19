@@ -61,8 +61,8 @@ mkdir "$output_folder" -p
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \
 -v "$aggregated_adapters_folder":/aggregated_adapters_folder --security-opt seccomp=unconfined \
 bioinfo_tools /bin/sh -c "atria --read1 /input_folder/R1.fastq.gz --read2 /input_folder/R2.fastq.gz \
---adapter1 $(jq '.adapter_1' /aggregated_adapters_folder/aggregated_adapters.json) \
---adapter2 $(jq '.adapter_2' /aggregated_adapters_folder/aggregated_adapters.json) \
+--adapter1 \$(jq -r '.adapter_1' /aggregated_adapters_folder/aggregated_adapters.json) \
+--adapter2 \$(jq -r '.adapter_2' /aggregated_adapters_folder/aggregated_adapters.json) \
 --output-dir /output_folder -t 12; \
 mv /output_folder/R1.atria.fastq.gz /output_folder/R1.fastq.gz; \
 mv /output_folder/R2.atria.fastq.gz /output_folder/R2.fastq.gz; \
