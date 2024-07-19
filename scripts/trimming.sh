@@ -57,22 +57,13 @@ fi
 # Create output folder if it doesn't exist
 mkdir "$output_folder" -p
 
-# Load detected adapters; end the program if they were not detected successfully.
-adapters_successfully_detected=$(jq '.adapters_successfully_detected' \
-"$aggregated_adapters_folder/aggregated_adapters.json")
-if [ "$adapters_successfully_detected" != true ]; then
-  echo "Adapter were not detected consistently across samples by Atria!" 1>&2
-  exit 1
-fi
-
-adapter_1=$(jq '.adapter_1' "$aggregated_adapters_folder/aggregated_adapters.json")
-adapter_2=$(jq '.adapter_2' "$aggregated_adapters_folder/aggregated_adapters.json")
-
 # Run Atria for trimming
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \
---security-opt seccomp=unconfined \
+-v "$aggregated_adapters_folder":/aggregated_adapters_folder --security-opt seccomp=unconfined \
 bioinfo_tools /bin/sh -c "atria --read1 /input_folder/R1.fastq.gz --read2 /input_folder/R2.fastq.gz \
---adapter1 $adapter_1 --adapter2 $adapter_2 --output-dir /output_folder -t 12; \
+--adapter1 $(jq '.adapter_1' "$aggregated_adapters_folder/aggregated_adapters.json") \
+--adapter2 $(jq '.adapter_2' "$aggregated_adapters_folder/aggregated_adapters.json") \
+--output-dir /output_folder -t 12; \
 mv /output_folder/R1.atria.fastq.gz /output_folder/R1.fastq.gz; \
 mv /output_folder/R2.atria.fastq.gz /output_folder/R2.fastq.gz; \
 chmod 777 -R /output_folder"
