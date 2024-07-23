@@ -1,0 +1,1 @@
+- Extract genomic features: ``` sh extract_genomic_features.sh -g /cellfile/datapublic/jkoubele/reference_genomes/GRCm39/ -a Mus_musculus.GRCm39.112.gtf -d /cellfile/datapublic/jkoubele/pol-II-analysis/docker_images/bioinfo_tools.tar -s /cellfile/datapublic/jkoubele/pol-II-analysis/misc```

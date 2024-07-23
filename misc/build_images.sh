@@ -3,7 +3,7 @@ show_help() {
   echo "Usage: $0 [-o output_folder] [--help]"
   echo ""
   echo "Options:"
-  echo "  -o      Specify the output folder (default is '../docker_images')."
+  echo "  -o      Specify the output folder (default is 'repository_path/docker_images')."
   echo "  --help  Display this help message."
 }
 
@@ -18,7 +18,9 @@ for arg in "$@"; do
 done
 
 # default value of output_folder
-output_folder="$(dirname "$0")/docker_images"
+script_directory="$(cd "$(dirname "$0")" && pwd)"
+repository_path="$(dirname "$script_directory")"
+output_folder="$repository_path/docker_images"
 
 # Parse command line options
 while getopts ":o:" opt; do
@@ -38,5 +40,5 @@ mkdir "$output_folder" -p
 
 # Ensure that latest debian base image is used
 docker pull debian:latest
-docker build -t bioinfo_tools "$(dirname "$0")/dockerfiles/bioinfo_tools"
+docker build -t bioinfo_tools "$repository_path/dockerfiles/bioinfo_tools"
 docker save -o "$output_folder"/bioinfo_tools.tar bioinfo_tools
