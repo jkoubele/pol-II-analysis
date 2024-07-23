@@ -7,3 +7,4 @@
  - Alignment: ```sh batch_align.sh -i /data/public/jkoubele/cell_cultures_mtor/FASTQ_trimmed/ -o /data/public/jkoubele/cell_cultures_mtor/BAM -g /data/public/jkoubele/reference_genomes/GRCm39```
  - Infer strandedness: ```sh run_infer_strandedness.sh -i /data/public/jkoubele/cell_cultures_mtor/BAM -o /data/public/jkoubele/cell_cultures_mtor/strandedness_info```
  - Feature counts: ```sh batch_feature_counts.sh -i /data/public/jkoubele/cell_cultures_mtor/BAM -o /data/public/jkoubele/cell_cultures_mtor/feature_counts -g /data/public/jkoubele/reference_genomes/GRCm39 -a Mus_musculus.GRCm39.112.gtf -s 2```
+ - Compute coverage: ```sh batch_compute_coverage.sh -i /data/public/jkoubele/cell_cultures_mtor/BAM -o /data/public/jkoubele/cell_cultures_mtor/coverage -g /data/public/jkoubele/reference_genomes/GRCm39 -f Mus_musculus.GRCm39.dna.primary_assembly.fa.fai -s 2```
