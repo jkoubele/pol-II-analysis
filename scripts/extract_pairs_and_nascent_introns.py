@@ -5,6 +5,7 @@ os.environ[
 
 import argparse
 import json
+import sys
 
 import pysam
 from pybedtools import BedTool, Interval
@@ -19,7 +20,8 @@ import logging
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
+    datefmt='%Y-%m-%d %H:%M:%S',
+    handlers=[logging.StreamHandler(sys.stdout)])
 
 
 class Intron(NamedTuple):
