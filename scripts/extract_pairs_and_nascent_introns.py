@@ -219,6 +219,13 @@ def extract_and_save_unique_pairs(input_folder: Path,
                                                                       start=suspected_polymerase_position,
                                                                       end=overlapping_intron.end,
                                                                       strand='-'))
+    for output_file, intervals in [(output_bed_forward_pairs, intervals_forward_pairs),
+                                   (output_bed_reverse_pairs, intervals_reverse_pairs),
+                                   (output_bed_forward_nascent_introns, intervals_forward_nascent_introns),
+                                   (output_bed_reverse_nascent_introns, intervals_reverse_nascent_introns)]:
+        with open(output_file, 'a') as file:
+            while intervals:
+                file.write(intervals.pop().unstranded_bed_string())
     bamfile_input.close()
 
     with open(output_json_read_count_file, 'w') as output_json_file:
