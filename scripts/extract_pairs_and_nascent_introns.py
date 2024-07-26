@@ -154,12 +154,9 @@ def extract_and_save_unique_pairs(input_folder: Path,
                                            (output_bed_reverse_pairs, intervals_reverse_pairs),
                                            (output_bed_forward_nascent_introns, intervals_forward_nascent_introns),
                                            (output_bed_reverse_nascent_introns, intervals_reverse_nascent_introns)]:
-                logging.info(f"Writing intervals to {output_file}")
                 with open(output_file, 'a') as file:
                     while intervals:
                         file.write(intervals.pop().unstranded_bed_string())
-            if i > 1_000_000:
-                break
 
         if read.query_name in invalid_ids:
             continue
