@@ -46,8 +46,7 @@ RUN rm Python-3.11.9.tgz
 RUN cd Python-3.11.9; ./configure --enable-optimizations
 RUN make -j 4 -C /Python-3.11.9
 RUN make -j 4 -C /Python-3.11.9 install
-COPY . .
-RUN pip3 install -r requirements.txt
+
 
 # Install bedtools
 RUN curl -L -O https://github.com/arq5x/bedtools2/archive/refs/tags/v2.31.1.zip
@@ -58,3 +57,8 @@ ENV PATH="/bedtools2-2.31.1/bin:$PATH"
 
 # Install jq por parsing JSON
 RUN apt install jq -y
+
+COPY . .
+RUN pip3 install -r requirements.txt
+RUN pip3 install pympler
+RUN pip3 install memory-profiler

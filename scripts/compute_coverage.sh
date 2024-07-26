@@ -73,15 +73,9 @@ mkdir "$output_folder" -p
 # Run coverage computation
 docker run --rm -v "$input_folder":/input_folder -v "$output_folder":/output_folder \
 -v "$script_folder":/script_folder -v "$genome_folder":/genome_folder --security-opt seccomp=unconfined \
-bioinfo_tools /bin/sh -c "python3 /script_folder/extract_pairs_and_nascent_introns.py \
+bioinfo_tools /bin/sh -c "
+python3 /script_folder/extract_pairs_and_nascent_introns.py \
 --input_folder /input_folder --output_folder /output_folder --strandendess_type $strandedness \
 --introns_bed_file /genome_folder/introns.bed --fai_index_file genome_folder/$fai_file_name;  \
-bedtools genomecov -bga -split -i /output_folder/forward_pairs.bed.gz -g /genome_folder/$fai_file_name > \
-/output_folder/coverage_forward_pairs.bedGraph; \
-bedtools genomecov -bga -split -i /output_folder/reverse_pairs.bed.gz -g /genome_folder/$fai_file_name > \
-/output_folder/coverage_reverse_pairs.bedGraph; \
-bedtools genomecov -bga -split -i /output_folder/forward_nascent_introns.bed.gz -g /genome_folder/$fai_file_name > \
-/output_folder/coverage_forward_nascent_introns.bedGraph; \
-bedtools genomecov -bga -split -i /output_folder/reverse_nascent_introns.bed.gz -g /genome_folder/$fai_file_name > \
-/output_folder/coverage_reverse_nascent_introns.bedGraph; \
+sh /script_folder/bed_sort_and_coverage.sh -f $fai_file_name; \
 chmod 777 -R /output_folder"

@@ -8,7 +8,6 @@ import json
 import sys
 
 import pysam
-from pybedtools import BedTool, Interval
 from interval import interval as py_interval
 import pandas as pd
 from typing import NamedTuple, Optional
@@ -19,16 +18,19 @@ import logging
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
+    level=logging.DEBUG,
     datefmt='%Y-%m-%d %H:%M:%S',
     handlers=[logging.StreamHandler(sys.stdout)])
 
 
-class Intron(NamedTuple):
+class GenomicRange(NamedTuple):
     chromosome: str
-    strand: str
     start: int
     end: int
+    strand: Optional[str] = None
+
+    def unstranded_bed_string(self):
+        return f"{self.chromosome}\t{self.start}\t{self.end}\n"
 
 
 class ChromsomeAndStrand(NamedTuple):
@@ -52,8 +54,8 @@ class IntronsIndex:
         introns_df['chromosome'] = introns_df['chromosome'].astype(str)
         logging.info(f"Loading introns for indexing")
         for _, row in introns_df.iterrows():
-            intron = Intron(chromosome=row['chromosome'], strand=row['strand'],
-                            start=row['start'], end=row['end'])
+            intron = GenomicRange(chromosome=row['chromosome'], start=row['start'], end=row['end'],
+                                  strand=row['strand'])
             chrom_and_strand = ChromsomeAndStrand(chromosome=row['chromosome'], strand=row['strand'])
             self.index_by_chrom_and_strand[chrom_and_strand][
                 len(self.index_by_chrom_and_strand[chrom_and_strand]) + 1] = intron
@@ -70,7 +72,7 @@ class IntronsIndex:
             for index, intron in numeric_index.items():
                 self.genomic_index[chromosome_and_strand][intron.start:intron.end] = index
 
-    def find_overlapping_intron(self, chromosome: str, strand: str, position: int) -> Optional[Intron]:
+    def find_overlapping_intron(self, chromosome: str, strand: str, position: int) -> Optional[GenomicRange]:
         chrom_and_strand = ChromsomeAndStrand(chromosome=chromosome, strand=strand)
         index = self.genomic_index[chrom_and_strand][position]
         return self.index_by_chrom_and_strand[chrom_and_strand][index] if index != 0 else None
@@ -116,11 +118,15 @@ def extract_and_save_unique_pairs(input_folder: Path,
     output_bam_file_forward_path = output_folder / 'forward.bam'
     output_bam_file_reverse_path = output_folder / 'reverse.bam'
 
-    output_bed_forward_pairs = output_folder / 'forward_pairs.bed.gz'
-    output_bed_reverse_pairs = output_folder / 'reverse_pairs.bed.gz'
+    output_bed_forward_pairs = output_folder / 'forward_pairs.bed'
+    output_bed_reverse_pairs = output_folder / 'reverse_pairs.bed'
 
-    output_bed_forward_nascent_introns = output_folder / 'forward_nascent_introns.bed.gz'
-    output_bed_reverse_nascent_introns = output_folder / 'reverse_nascent_introns.bed.gz'
+    output_bed_forward_nascent_introns = output_folder / 'forward_nascent_introns.bed'
+    output_bed_reverse_nascent_introns = output_folder / 'reverse_nascent_introns.bed'
+
+    for file_name in [output_bed_forward_pairs, output_bed_reverse_pairs,
+                      output_bed_forward_nascent_introns, output_bed_reverse_nascent_introns]:
+        open(file_name, 'w').close()  # Create empty files to append on
 
     output_json_read_count_file = output_folder / 'read_counts.json'
 
@@ -129,11 +135,11 @@ def extract_and_save_unique_pairs(input_folder: Path,
     reads_1: dict[str, pysam.AlignedSegment] = {}
     reads_2: dict[str, pysam.AlignedSegment] = {}
 
-    intervals_forward_pairs: list[Interval] = []
-    intervals_reverse_pairs: list[Interval] = []
+    intervals_forward_pairs: list[GenomicRange] = []
+    intervals_reverse_pairs: list[GenomicRange] = []
 
-    intervals_forward_nascent_introns: list[Interval] = []
-    intervals_reverse_nascent_introns: list[Interval] = []
+    intervals_forward_nascent_introns: list[GenomicRange] = []
+    intervals_reverse_nascent_introns: list[GenomicRange] = []
 
     bamfile_input = pysam.AlignmentFile(bamfile_input_path, "rb")
 
@@ -144,6 +150,17 @@ def extract_and_save_unique_pairs(input_folder: Path,
     for i, read in enumerate(bamfile_input):
         if i % 1_000_000 == 0:
             logging.info(f"Computing covered intervals: {i} reads")
+            for output_file, intervals in [(output_bed_forward_pairs, intervals_forward_pairs),
+                                           (output_bed_reverse_pairs, intervals_reverse_pairs),
+                                           (output_bed_forward_nascent_introns, intervals_forward_nascent_introns),
+                                           (output_bed_reverse_nascent_introns, intervals_reverse_nascent_introns)]:
+                logging.info(f"Writing intervals to {output_file}")
+                with open(output_file, 'a') as file:
+                    while intervals:
+                        file.write(intervals.pop().unstranded_bed_string())
+            if i > 1_000_000:
+                break
+
         if read.query_name in invalid_ids:
             continue
 
@@ -171,10 +188,10 @@ def extract_and_save_unique_pairs(input_folder: Path,
         interval_union = sorted(list(interval_union), key=lambda x: x[0])
 
         if read_is_in_forward_pair(read=read_1, strandendess_type=strandendess_type):
-            intervals_forward_pairs.extend([Interval(chrom=read_1.reference_name,
-                                                     start=int(x[0]),
-                                                     end=int(x[1]),
-                                                     strand='+') for x in interval_union])
+            intervals_forward_pairs.extend([GenomicRange(chromosome=read_1.reference_name,
+                                                         start=int(x[0]),
+                                                         end=int(x[1]),
+                                                         strand='+') for x in interval_union])
             valid_reads_forward += 2
             # suspected_polymerase_position is inclusive (we expect pol-II to be located there).
             # Intervals in BED format have left part (start) inclusive and right part (end) exclusive, which
@@ -184,16 +201,16 @@ def extract_and_save_unique_pairs(input_folder: Path,
                                                                        strand='+',
                                                                        position=suspected_polymerase_position)
             if overlapping_intron is not None:
-                intervals_forward_nascent_introns.append(Interval(chrom=read_1.reference_name,
-                                                                  start=overlapping_intron.start,
-                                                                  end=suspected_polymerase_position + 1,
-                                                                  strand='+'))
+                intervals_forward_nascent_introns.append(GenomicRange(chromosome=read_1.reference_name,
+                                                                      start=overlapping_intron.start,
+                                                                      end=suspected_polymerase_position + 1,
+                                                                      strand='+'))
 
         else:
-            intervals_reverse_pairs.extend([Interval(chrom=read_1.reference_name,
-                                                     start=int(x[0]),
-                                                     end=int(x[1]),
-                                                     strand='-') for x in interval_union])
+            intervals_reverse_pairs.extend([GenomicRange(chromosome=read_1.reference_name,
+                                                         start=int(x[0]),
+                                                         end=int(x[1]),
+                                                         strand='-') for x in interval_union])
             valid_reads_reverse += 2
 
             suspected_polymerase_position = min([int(x[0]) for x in interval_union])
@@ -201,18 +218,11 @@ def extract_and_save_unique_pairs(input_folder: Path,
                                                                        strand='-',
                                                                        position=suspected_polymerase_position)
             if overlapping_intron is not None:
-                intervals_reverse_nascent_introns.append(Interval(chrom=read_1.reference_name,
-                                                                  start=suspected_polymerase_position,
-                                                                  end=overlapping_intron.end,
-                                                                  strand='-'))
+                intervals_reverse_nascent_introns.append(GenomicRange(chromosome=read_1.reference_name,
+                                                                      start=suspected_polymerase_position,
+                                                                      end=overlapping_intron.end,
+                                                                      strand='-'))
     bamfile_input.close()
-
-    logging.info("Saving intervals to .bed files")
-    BedTool(intervals_forward_pairs).sort().saveas(output_bed_forward_pairs, compressed=True)
-    BedTool(intervals_reverse_pairs).sort().saveas(output_bed_reverse_pairs, compressed=True)
-
-    BedTool(intervals_forward_nascent_introns).sort().saveas(output_bed_forward_nascent_introns, compressed=True)
-    BedTool(intervals_reverse_nascent_introns).sort().saveas(output_bed_reverse_nascent_introns, compressed=True)
 
     with open(output_json_read_count_file, 'w') as output_json_file:
         json.dump({'selected_reads_forward': valid_reads_forward,
@@ -246,6 +256,7 @@ def extract_and_save_unique_pairs(input_folder: Path,
         pysam.sort("-o", str(tmp_file_path), str(bam_file_path))
         os.rename(tmp_file_path, bam_file_path)
         pysam.index(str(bam_file_path))
+    logging.info("Extracting pairs and nascent introns finished.")
 
 
 if __name__ == "__main__":
