@@ -30,9 +30,9 @@ def aggregate_feature_counts(input_folder_path: Path,
 
 
 if __name__ == "__main__":
-    aggregate_feature_counts(input_folder_path=Path('/cellfile/datapublic/jkoubele/cell_cultures_mtor/feature_counts'),
+    aggregate_feature_counts(input_folder_path=Path('/cellfile/datapublic/jkoubele/senescent_cells/feature_counts_exons'),
                              output_folder_path=Path(
-                                 '/cellfile/datapublic/jkoubele/cell_cultures_mtor/aggregated_feature_counts'))
+                                 '/cellfile/datapublic/jkoubele/senescent_cells/aggregated_feature_counts_exons'))
 
     # parser = argparse.ArgumentParser()
     # parser.add_argument('--input_folder',

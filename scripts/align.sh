@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=align
 #SBATCH --partition=all
-#SBATCH --ntasks=12
+#SBATCH --ntasks=15
 
 # Function to display usage information
 usage() {

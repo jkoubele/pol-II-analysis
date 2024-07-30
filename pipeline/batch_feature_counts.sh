@@ -3,7 +3,7 @@
 # Function to display usage information
 usage() {
     echo "Usage: $0 -i <input_folder> -o <output_folder> -g <genome_folder>"
-    echo " -a <annotation_gtf_file_name> -s <strandedness>"
+    echo " -a <annotation_gtf_file_name> -s <strandedness> [-f <feature_type>]"
     echo "[-d <docker_image_path>] [-l <slurm_log_folder>] [-L]"
     exit 1
 }
@@ -17,12 +17,13 @@ output_folder=""
 genome_folder=""
 annotation_gtf_file_name=""
 strandedness=""
+feature_type="gene"
 run_locally=false
 docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
 slurm_log_folder="$repository_path"/slurm_logs
 
 # Parse command line arguments
-while getopts ":i:o:g:d:a:s:l:L" opt; do
+while getopts ":i:o:g:d:a:s:f:l:L" opt; do
     case ${opt} in
         i )
             input_folder=$OPTARG
@@ -41,6 +42,9 @@ while getopts ":i:o:g:d:a:s:l:L" opt; do
             ;;
         s )
             strandedness=$OPTARG
+            ;;
+        f )
+            feature_type=$OPTARG
             ;;
         l )
             slurm_log_folder=$OPTARG
@@ -74,11 +78,11 @@ for sub_folder in "$input_folder"/*; do
   if [ "$run_locally" = true ]; then
     echo "Processing sample $sample_name"
     sh "$repository_path"/scripts/feature_counts.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
-    -d "$docker_image_path" -g "$genome_folder" -a "$annotation_gtf_file_name" -s "$strandedness"
+    -d "$docker_image_path" -g "$genome_folder" -a "$annotation_gtf_file_name" -s "$strandedness" -f "$feature_type"
   else
     echo "Submitting sample $sample_name"
     sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
     "$repository_path"/scripts/feature_counts.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
-    -d "$docker_image_path" -g "$genome_folder" -a "$annotation_gtf_file_name" -s "$strandedness"
+    -d "$docker_image_path" -g "$genome_folder" -a "$annotation_gtf_file_name" -s "$strandedness" -f "$feature_type"
   fi
 done
