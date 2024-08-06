@@ -4,5 +4,5 @@
    After that, check if the adapters were consistent across samples (the output will contain flag whether the adapters were detected successfully.)
 - Trimming reads: ```sh batch_trimming.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ -o /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed -a /data/public/jkoubele/fli_dr_mice/aggregated_adapters```
 - QC after trimming: ```sh batch_qc.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed/ -o /data/public/jkoubele/fli_dr_mice/QC_after_trimming```
- - Alignment: ```sh batch_align.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed/ -o /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication -g /data/public/jkoubele/reference_genomes/GRCm39```
+- Alignment: ```sh batch_align.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed/ -o /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication -g /data/public/jkoubele/reference_genomes/GRCm39```
 - Infer strandedness: ```sh run_infer_strandedness.sh -i /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication -o /data/public/jkoubele/fli_dr_mice/strandedness_info```
