@@ -1,6 +1,6 @@
 - First QC: ```sh batch_qc.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ -o /data/public/jkoubele/fli_dr_mice/QC_before_trimming```
 - Detecting adapters: ```sh batch_detect_adapers.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ -o /data/public/jkoubele/fli_dr_mice/detected_adapters```
- Aggregate adapters: ```sh run_aggregate_adapters.sh -i /data/public/jkoubele/fli_dr_mice/detected_adapters -o /data/public/jkoubele/fli_dr_mice/aggregated_adapters```
+- Aggregate adapters: ```sh run_aggregate_adapters.sh -i /data/public/jkoubele/fli_dr_mice/detected_adapters -o /data/public/jkoubele/fli_dr_mice/aggregated_adapters```
    After that, check if the adapters were consistent across samples (the output will contain flag whether the adapters were detected successfully.)
 - Trimming reads: ```sh batch_trimming.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ -o /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed -a /data/public/jkoubele/fli_dr_mice/aggregated_adapters```
 - QC after trimming: ```sh batch_qc.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed/ -o /data/public/jkoubele/fli_dr_mice/QC_after_trimming```
