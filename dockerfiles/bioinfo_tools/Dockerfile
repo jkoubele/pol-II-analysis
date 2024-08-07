@@ -60,5 +60,3 @@ RUN apt install jq -y
 
 COPY . .
 RUN pip3 install -r requirements.txt
-RUN pip3 install pympler
-RUN pip3 install memory-profiler

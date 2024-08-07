@@ -6,3 +6,4 @@
 - QC after trimming: ```sh batch_qc.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed/ -o /data/public/jkoubele/fli_dr_mice/QC_after_trimming```
 - Alignment: ```sh batch_align.sh -i /data/public/jkoubele/fli_dr_mice/FASTQ_trimmed/ -o /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication -g /data/public/jkoubele/reference_genomes/GRCm39```
 - Infer strandedness: ```sh run_infer_strandedness.sh -i /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication -o /data/public/jkoubele/fli_dr_mice/strandedness_info```
+- UMI deduplication: ```sh batch_deduplicate_umi.sh -i /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication/ -o /data/public/jkoubele/fli_dr_mice/BAM```
