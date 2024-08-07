@@ -80,7 +80,7 @@ for sub_folder in "$input_folder"/*; do
     -d "$docker_image_path" -s "$strandedness" -c "$repository_path"/scripts -g "$genome_folder" -f "$fai_file_name"
   else
     echo "Submitting sample $sample_name"
-    sbatch -x beyer-n01,beyer-n03,beyer-n04,beyer-n06 --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
+    sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
     "$repository_path"/scripts/compute_coverage.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
     -d "$docker_image_path" -s "$strandedness" -c "$repository_path"/scripts -g "$genome_folder" -f "$fai_file_name"
   fi

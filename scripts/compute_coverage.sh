@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=compute_coverage
-#SBATCH --ntasks=12
+#SBATCH --ntasks=15
 
 # Function to display usage information
 usage() {
