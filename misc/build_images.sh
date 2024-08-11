@@ -40,5 +40,10 @@ mkdir "$output_folder" -p
 
 # Ensure that latest debian base image is used
 docker pull debian:latest
+
+# build and save docker images
 docker build -t bioinfo_tools "$repository_path/dockerfiles/bioinfo_tools"
 docker save -o "$output_folder"/bioinfo_tools.tar bioinfo_tools
+
+docker build -t bioinfo_r "$repository_path/dockerfiles/bioinfo_r"
+docker save -o "$output_folder"/bioinfo_r.tar bioinfo_r
