@@ -15,10 +15,11 @@ libgeos-dev \
 libfontconfig1-dev \
 && rm -rf /var/lib/apt/lists/*
 
-#RUN Rscript -e "install.packages('tidyverse')"
+RUN Rscript -e "install.packages('tidyverse')"
 RUN Rscript -e "install.packages('rjson')"
 RUN Rscript -e 'if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager"); BiocManager::install(version = "3.18")'
 # Installing Bioconductor core packages:
 #RUN Rscript -e 'BiocManager::install(c("GenomicFeatures", "AnnotationDbi"), dependencies = TRUE, ask = FALSE)'
 RUN Rscript -e 'BiocManager::install(c("GenomicFeatures"), dependencies = TRUE, ask = FALSE)'
 RUN Rscript -e 'install.packages("argparse")'
+RUN Rscript -e 'install.packages("progressr")'
