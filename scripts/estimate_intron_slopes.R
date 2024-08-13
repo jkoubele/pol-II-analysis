@@ -6,14 +6,9 @@ library(rjson)
 library(progress)
 
 parser <- ArgumentParser()
-parser$add_argument("--input_folder", help = "Folder containing coverage files.",
-                    default = "/cellfile/datapublic/jkoubele/fli_dr_mice/coverage/no003-1_OA3",
-                    required = FALSE)
-parser$add_argument("--introns_file", help = "File with introns in .bed format.",
-                    default = "/cellfile/datapublic/jkoubele/reference_genomes/GRCm39/introns.bed",
-                    required = FALSE)
-parser$add_argument("--output_folder", help = "Folder to which the result will be saved.", required = FALSE,
-                    default = "/cellfile/datapublic/jkoubele/fli_dr_mice/intron_slopes/no003-1_OA3")
+parser$add_argument("--input_folder", help = "Folder containing coverage files.", required = TRUE)
+parser$add_argument("--introns_file", help = "File with introns in .bed format.", required = TRUE)
+parser$add_argument("--output_folder", help = "Folder to which the result will be saved.", required = TRUE)
 args <- parser$parse_args()
 
 fit_model_on_intron <- function(intron_row, strand_coverages, padding = 20, min_length = 50) {
@@ -22,7 +17,7 @@ fit_model_on_intron <- function(intron_row, strand_coverages, padding = 20, min_
   strand <- intron_row$strand
   chromosome <- intron_row$chromosome
   length <- intron_row$length
-  if (intron_length <= min_length || intron_length <= 2 * padding) {
+  if (length <= min_length || length <= 2 * padding) {
     return(tibble(intercept = NA, slope = NA, avg_coverage = NA, r_squared = NA))
   }
   intron_coverage_rle <- stats::window(strand_coverages[[strand]][[chromosome]],
