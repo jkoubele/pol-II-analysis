@@ -46,8 +46,7 @@ def extract_genomic_features(genome_folder: Path, gtf_file_name: str) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--genome_folder')
-    parser.add_argument('--gtf_file_name',
-                        help='Folder to which the result will be saved.')
+    parser.add_argument('--gtf_file_name')
     args = parser.parse_args()
     extract_genomic_features(genome_folder=Path(args.genome_folder),
                              gtf_file_name=args.gtf_file_name)
