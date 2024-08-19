@@ -14,7 +14,10 @@ def load_and_preprocess_slopes(slopes_file: Path, min_r_squared=0.01) -> pd.Data
     slopes_df['chromosome'] = slopes_df['chromosome'].astype(str)
     slopes_df = slopes_df.dropna()
     slopes_df = slopes_df[slopes_df['slope'] < 0]
-    slopes_df = slopes_df[slopes_df['r_squared'] > min_r_squared]
+    if 'r_squared' in slopes_df.columns:
+        slopes_df = slopes_df[slopes_df['r_squared'] > min_r_squared]
+    if 'num_polymerases_per_million_reads' in slopes_df.columns:
+        slopes_df = slopes_df[slopes_df['num_polymerases_per_million_reads'] > 0]
     slopes_df = slopes_df.reset_index(drop=True)
     return slopes_df
 
@@ -102,6 +105,13 @@ if __name__ == "__main__":
     parser.add_argument('--output_folder')
     args = parser.parse_args()
 
+    selected_slopes_by_definition = select_intron_slopes_by_sj_evidence(
+        slopes_file=Path(args.input_folder_slopes) / 'slopes_by_definition.tsv',
+        sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
+    selected_slopes_by_definition.to_csv(Path(args.output_folder) / 'selected_slopes_by_definition.tsv',
+                                         sep='\t',
+                                         index=False)
+
     selected_slopes_read_pairs = select_intron_slopes_by_sj_evidence(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_read_pairs.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
@@ -115,3 +125,10 @@ if __name__ == "__main__":
     selected_slopes_nascent_introns.to_csv(Path(args.output_folder) / 'selected_slopes_nascent_introns.tsv',
                                            sep='\t',
                                            index=False)
+
+    selected_slopes_read_pairs_cummax = select_intron_slopes_by_sj_evidence(
+        slopes_file=Path(args.input_folder_slopes) / 'slopes_read_pairs_cummax.tsv',
+        sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
+    selected_slopes_read_pairs_cummax.to_csv(Path(args.output_folder) / 'selected_slopes_read_pairs_cummax.tsv',
+                                             sep='\t',
+                                             index=False)

@@ -11,7 +11,31 @@ parser$add_argument("--introns_file", help = "File with introns in .bed format."
 parser$add_argument("--output_folder", help = "Folder to which the result will be saved.", required = TRUE)
 args <- parser$parse_args()
 
-fit_model_on_intron <- function(intron_row, strand_coverages, padding = 20, min_length = 50) {
+
+compute_slope_from_definition <- function(intron_row, strand_coverages, padding = 20, min_length = 50){
+  start <- intron_row$start
+  end <- intron_row$end
+  strand <- intron_row$strand
+  chromosome <- intron_row$chromosome
+  length <- intron_row$length
+  if (length <= min_length || length <= 2 * padding) {
+    return(tibble(slope = NA, num_polymerases_per_million_reads=NA))
+  }
+  if(strand == '+'){
+    coverage_5_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][start+padding])
+    coverage_3_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][end-padding])
+  }
+  else if (strand=='-'){
+    coverage_5_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][end-padding])
+    coverage_3_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][start+padding])
+  }
+  
+  return(tibble(slope = -(coverage_5_prime-coverage_3_prime) / (length - 2*padding),
+                num_polymerases_per_million_reads=coverage_5_prime-coverage_3_prime))
+  
+}
+
+fit_model_on_intron <- function(intron_row, strand_coverages, padding = 20, min_length = 50, apply_cummax=FALSE) {
   start <- intron_row$start
   end <- intron_row$end
   strand <- intron_row$strand
@@ -24,6 +48,15 @@ fit_model_on_intron <- function(intron_row, strand_coverages, padding = 20, min_
                                        start = start + padding,
                                        end = end - padding)
   intron_coverage <- as.numeric(intron_coverage_rle)
+  if (apply_cummax){
+    if (strand=='+'){
+      intron_coverage <- rev(cummax(rev(intron_coverage)))
+    }
+    else if (strand=='-'){
+      intron_coverage <- cummax(intron_coverage)
+    }
+  }
+    
   avg_coverage <- mean(intron_coverage)
 
   if (avg_coverage == 0) {
@@ -52,22 +85,59 @@ introns$chromosome <- as.character(introns$chromosome)
 introns$strand <- as.character(introns$strand)
 introns$length <- introns$end - introns$start
 
-files_specification_read_pairs <- list(coverage_file_forward = paste0(input_folder, '/coverage_forward_pairs.bedGraph'),
+
+# Compute slopes from definition:
+
+bed_graph_forward <- import.bedGraph(paste0(input_folder, '/coverage_forward_nascent_introns.bedGraph'))
+bed_graph_reverse <- import.bedGraph(paste0(input_folder, '/coverage_reverse_nascent_introns.bedGraph'))
+
+strand_coverages_of_read_pairs <- list('+' = coverage(bed_graph_forward, weight = bed_graph_forward$score / library_size * 1e6),
+                                       '-' = coverage(bed_graph_reverse, weight = bed_graph_reverse$score / library_size * 1e6))
+
+compute_with_coverage <- partial(compute_slope_from_definition,
+                                 strand_coverages = strand_coverages_of_read_pairs)
+pb <- progress_bar$new(
+  format = "  Computing intron slopes: [:bar] :percent in :elapsed",
+  total = nrow(introns),
+  clear = TRUE
+)
+
+compute_with_progress_bar <- function(...) {
+  pb$tick()
+  compute_with_coverage(...)
+}
+
+slopes_df <- bind_rows(pmap(introns, ~compute_with_progress_bar(list(...))))
+concat_df <- cbind(introns[c("chromosome", "start", "end", "strand", "length")], slopes_df)
+write.table(concat_df, paste0(output_folder, '/slopes_by_definition.tsv'), sep = "\t", row.names = F)
+
+# Compute slopes by OLS:
+
+specification_read_pairs <- list(coverage_file_forward = paste0(input_folder, '/coverage_forward_pairs.bedGraph'),
                                        coverage_file_reverse = paste0(input_folder, '/coverage_reverse_pairs.bedGraph'),
-                                       output_file_name = paste0(output_folder, '/slopes_read_pairs.tsv'))
+                                       output_file_name = paste0(output_folder, '/slopes_read_pairs.tsv'),
+                                       apply_cummax=FALSE)
 
-files_specification_nascent_introns <- list(coverage_file_forward = paste0(input_folder, '/coverage_forward_nascent_introns.bedGraph'),
+specification_read_pairs_cummax <- list(coverage_file_forward = paste0(input_folder, '/coverage_forward_pairs.bedGraph'),
+                                       coverage_file_reverse = paste0(input_folder, '/coverage_reverse_pairs.bedGraph'),
+                                       output_file_name = paste0(output_folder, '/slopes_read_pairs_cummax.tsv'),
+                                       apply_cummax=TRUE)
+
+specification_nascent_introns <- list(coverage_file_forward = paste0(input_folder, '/coverage_forward_nascent_introns.bedGraph'),
                                             coverage_file_reverse = paste0(input_folder, '/coverage_reverse_nascent_introns.bedGraph'),
-                                            output_file_name = paste0(output_folder, '/slopes_nascent_introns.tsv'))
+                                            output_file_name = paste0(output_folder, '/slopes_nascent_introns.tsv'),
+                                            apply_cummax=FALSE)
 
-for (files_specification in list(files_specification_read_pairs, files_specification_nascent_introns)) {
-  bed_graph_forward <- import.bedGraph(files_specification$coverage_file_forward)
-  bed_graph_reverse <- import.bedGraph(files_specification$coverage_file_reverse)
+for (specification in list(specification_read_pairs, specification_read_pairs_cummax, specification_nascent_introns)) {
+  bed_graph_forward <- import.bedGraph(specification$coverage_file_forward)
+  bed_graph_reverse <- import.bedGraph(specification$coverage_file_reverse)
 
   strand_coverages_of_read_pairs <- list('+' = coverage(bed_graph_forward, weight = bed_graph_forward$score / library_size * 1e6),
                                          '-' = coverage(bed_graph_reverse, weight = bed_graph_reverse$score / library_size * 1e6))
 
-  compute_with_coverage <- partial(fit_model_on_intron, strand_coverages = strand_coverages_of_read_pairs)
+  compute_with_coverage <- partial(fit_model_on_intron,
+                                   strand_coverages = strand_coverages_of_read_pairs,
+                                   apply_cummax=specification$apply_cummax)
   pb <- progress_bar$new(
     format = "  Computing intron slopes: [:bar] :percent in :elapsed",
     total = nrow(introns),
@@ -81,5 +151,5 @@ for (files_specification in list(files_specification_read_pairs, files_specifica
 
   slopes_df <- bind_rows(pmap(introns, ~compute_with_progress_bar(list(...))))
   concat_df <- cbind(introns[c("chromosome", "start", "end", "strand", "length")], slopes_df)
-  write.table(concat_df, files_specification$output_file_name, sep = "\t", row.names = F)
+  write.table(concat_df, specification$output_file_name, sep = "\t", row.names = F)
 }
