@@ -56,11 +56,11 @@ if __name__ == "__main__":
     graph.edge('coverage', 'intron_slopes', label='Estimate slopes')
     graph.edge('reference_genome', 'intron_slopes')
 
-    graph.node('intron_slopes_comparison', color=default_color)
-    graph.edge('intron_slopes', 'intron_slopes_comparison', label='Compare slopes')
+    graph.node('selected_intron_slopes', color=default_color)
+    graph.edge('intron_slopes', 'selected_intron_slopes', label='Select intron slopes')
 
-    graph.edge('BAM', 'intron_slopes_comparison', label='SJ info')
-    graph.edge('BAM_before_deduplication', 'intron_slopes_comparison', color=umi_color)
+    graph.edge('BAM', 'selected_intron_slopes', label='SJ info')
+    graph.edge('BAM_before_deduplication', 'selected_intron_slopes', color=umi_color)
 
     graph.node('strandedness_info', color=default_color)
     graph.edge('BAM', 'strandedness_info', label='Infer strandedness')
