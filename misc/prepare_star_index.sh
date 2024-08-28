@@ -1,26 +1,26 @@
 #!/bin/bash
 
-#SBATCH --job-name=extract_genomic_features
-#SBATCH --ntasks=12
+#SBATCH --job-name=star_indexing
+#SBATCH --ntasks=18
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 -g <genome_folder> -a <annotation_gtf_file_name> -t <gtf_source_type> "
-    echo "[-d <docker_image_path>] [-s <script_folder>]"
+    echo "Usage: $0 -g <genome_folder> -a <annotation_gtf_file_name> -f <fasta_file_name>"
+    echo "[-d <docker_image_path>]"
     exit 1
 }
 
 # Variables to hold arguments
 genome_folder=""
 annotation_gtf_file_name=""
-gtf_source_type=""
+fasta_file_name=""
 
-script_folder="$(cd "$(dirname "$0")" && pwd)"
-repository_path="$(dirname "$script_folder")"
+script_directory="$(cd "$(dirname "$0")" && pwd)"
+repository_path="$(dirname "$script_directory")"
 docker_image_path="$repository_path"/docker_images/bioinfo_tools.tar
 
 # Parse command line arguments
-while getopts ":g:a:d:s:t:" opt; do
+while getopts ":g:a:f:d:" opt; do
     case ${opt} in
         g )
             genome_folder=$OPTARG
@@ -28,14 +28,11 @@ while getopts ":g:a:d:s:t:" opt; do
         a )
             annotation_gtf_file_name=$OPTARG
             ;;
+        f )
+            fasta_file_name=$OPTARG
+            ;;
         d )
             docker_image_path=$OPTARG
-            ;;
-        s )
-            script_folder=$OPTARG
-            ;;
-        t )
-            gtf_source_type=$OPTARG
             ;;
         \? )
             echo "Invalid option: $OPTARG" 1>&2
@@ -49,7 +46,7 @@ while getopts ":g:a:d:s:t:" opt; do
 done
 
 # Check if mandatory arguments are provided
-if [ -z "$genome_folder" ] || [ -z "$annotation_gtf_file_name" ] || [ -z "$gtf_source_type" ]; then
+if [ -z "$genome_folder" ] || [ -z "$annotation_gtf_file_name" ] || [ -z "$fasta_file_name" ]; then
     echo "Error: Missing mandatory arguments"
     usage
 fi
@@ -59,10 +56,14 @@ if ! docker images --format "{{.Repository}}" | grep -q "^bioinfo_tools$"; then
     docker load -i "$docker_image_path"
 fi
 
-
-docker run --rm -v "$genome_folder":/genome_folder -v "$script_folder":/script_folder \
---security-opt seccomp=unconfined bioinfo_tools /bin/sh -c "python3 /script_folder/extract_genomic_features.py \
---genome_folder /genome_folder \
---gtf_file_name $annotation_gtf_file_name \
---gtf_source $gtf_source_type;  \
+# Run STAR indexing
+docker run --rm -v "$genome_folder":/genome_folder \
+--security-opt seccomp=unconfined bioinfo_tools /bin/sh -c "STAR --runThreadN 16 \
+--runMode genomeGenerate \
+--genomeDir /genome_folder/STAR_index \
+--genomeFastaFiles /genome_folder/$fasta_file_name
+--sjdbGTFfile /genome_folder/$annotation_gtf_file_name
+--outTmpDir /genome_folder/tmp \
+--limitGenomeGenerateRAM 108000000000; \
 chmod 777 -R /genome_folder"
+
