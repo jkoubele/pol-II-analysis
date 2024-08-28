@@ -1,11 +1,11 @@
 # pol-II-analysis
 
 This repository contains a pipeline for processing total or nascent RNA-seq data,
-focusing on analysis related to the RNA Polymerase II (pol-II).
+focusing on an analysis related to the RNA Polymerase II (pol-II).
 
 Currently, it focuses on the calculation of pol-II speed, based on the paper
 [Debès, Cédric, et al. "Ageing-associated changes in transcriptional elongation influence longevity](https://www.nature.com/articles/s41586-023-05922-y).
-In the future, we plan to extend this repository to analyze other phenomenas related to pol-II.
+In the future, we plan to extend this repository to analyze other phenomena related to pol-II.
 
 ## Overview
 This repository implements a pipeline for processing  total or nascent RNA-seq data. 
@@ -46,3 +46,22 @@ resp. [Gencode](https://www.gencodegenes.org/)) differ in their naming of UTR
 features (Ensembl distinguish ```3_prime_utr``` and ```5_prime_utr```, while Gencode names both as ```UTR```),
 the type of ```.gtf``` file must be provided as an argument to the script (```ensembl``` or ```gencode``` ).
 ## Workflow
+This section provides information how to process a given dataset, after the steps from the 
+*Setup* sections have been completed.
+### Data preparation
+We will start from a ```FASTQ``` folder, containing unprocessed paired reads.
+The name of the folder can be arbitrary (is not hardcoded in the pipeline), although we
+recommend sticking to the names provided in the computational graph visualization above.
+
+The ```FASTQ``` folder is supposed to contain one subfolder for each sample. Names of
+the subfolders will be used as sample names in every following steps of the pipeline. Therefore,
+the naming can be again arbitrary.
+
+Each sample subfolder is expected to contain files ```R1.fastq.gz``` and ```R2.fastq.gz``` with
+reads 1 and 2, respectively. The naming of these files **is** hardcoded in the pipeline 
+(as well as the naming of all files that will be created during the pipeline run). The FASTQ input files
+are expected to be compressed by gunzip (hence the ```.gz``` extension).
+If the sequencing was done with Unique Molecular Identifiers (UMIs), we expect that the
+UMIs are added to the read names (using e.g. the ```extract``` command of [UMI-tools](https://umi-tools.readthedocs.io/en/latest/)).
+### Running the pipeline
+1. **Initial quality control**: 
