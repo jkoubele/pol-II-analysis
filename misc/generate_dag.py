@@ -17,11 +17,11 @@ if __name__ == "__main__":
     graph.node('detected_adapters', color=default_color)
     graph.edge('FASTQ', 'detected_adapters', label='Atria - detect adapters')
 
-    graph.node('detected_adapters_aggregated', color=default_color)
-    graph.edge('detected_adapters', 'detected_adapters_aggregated', label='aggregate adapters')
+    graph.node('aggregated_adapters', color=default_color)
+    graph.edge('detected_adapters', 'aggregated_adapters', label='aggregate adapters')
 
     graph.node('FASTQ_trimmed', color=default_color)
-    graph.edge('detected_adapters_aggregated', 'FASTQ_trimmed')
+    graph.edge('aggregated_adapters', 'FASTQ_trimmed')
     graph.edge('FASTQ', 'FASTQ_trimmed', label='Atria trimming')
 
     graph.node('QC_after_trimming', color=default_color)
