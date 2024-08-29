@@ -81,7 +81,7 @@ The results will be stored in a JSON file ```aggregated_adapters.json``` in the 
 folder. If the adapters differ across samples, the flag ```adapters_successfully_detected``` in the JSON would be set to False.
 4. **Trimming**: Running [batch_trimming.sh](pipeline/batch_trimming.sh) will use the detected adapters to trimm the reads
 and store them in the folder ```FASTQ_trimmed```.
-5. **Quality control after the trimming**: After the trimming step, we will again use FastQC to generate reports and assess
+5. **Quality control after trimming**: After the trimming step, we will again use FastQC to generate reports and assess
 whether the trimming was successful. This is done by again running the script [batch_qc.s](pipeline/batch_qc.sh),
 this time with ```FASTQ_trimmed``` folder as an input.
 6. **Alignment**: We will use [STAR](https://github.com/alexdobin/STAR) for alignment. Besides producing
@@ -93,3 +93,21 @@ is on the same strand as the read pair as a whole (the reads 1 and 2 are always 
 gene count matrices produces by STAR to determine strandedness type of our data, by comparing the amount
 of unmapped reads in both cases. This is achieved by running the script [run_infer_strandedness.sh](pipeline/run_infer_strandedness.sh),
 which will generate JSON file ```strandedness_info.json``` in the folder ```strandedness_info```.
+8. **Feature count**: Besides count matrices produced by STAR, we will also generate
+count matrices by [featureCounts](https://subread.sourceforge.net/featureCounts.html) tool. One of the advantage is that it allows to assign
+gene to a read not only by its overlap with exons (as it's done by STAR), but by overlap with the whole gene,
+which is more appropriate for total or nascent RNA-seq. Feature count is run by the script
+[batch_feature_counts.sh](pipeline/batch_feature_counts.sh).
+9. **Aggregating feature counts**: Previous steps produces one file with counts for each sample.
+For subsequent analysis, it may be more convenient to have the counts aggregated in a single matrix. This
+can be achieved by running the script... --*TODO: add missing script for aggregation*--
+10. **Computing coverage**: Although the STAR also produced coverage files, we will use custom script for coverage computation. 
+One issue with STAR coverage files is that the coverage is computed over reads and not read pairs, i.e. the overlapping
+part of read pair is counted twice. We will also compute intronic coverage in a custom way: we will assume
+that the rightmost position of a read pair, if located within an intron, correspond to a pol-II producing a transcript.
+We will therefore assume that the transcript span the whole range from intron start up to this point, and compute coverage
+over such transcripts. The coverage computation is done by running [batch_compute_coverage.sh](pipeline/batch_compute_coverage.sh),
+storing the results in ```coverage``` folder.
+11. **Slope estimation**: The coverage is used to estimate intronic slopes of transcript coverage by running
+[batch_slope_estimation.sh](pipeline/batch_slope_estimation.sh), storing the results in the
+```intron_slopes``` folder.
