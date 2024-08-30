@@ -65,12 +65,12 @@ for sub_folder in "$intron_slopes_folder"/*; do
   sample_name=$(basename "$sub_folder")
   if [ "$run_locally" = true ]; then
     echo "Processing sample $sample_name"
-    sh "$repository_path"/scripts/select_introns.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
+    sh "$repository_path"/scripts/add_sj_info.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
     -d "$docker_image_path" -s "$sj_folder"/"$sample_name" -c "$repository_path"/scripts
   else
     echo "Submitting sample $sample_name"
     sbatch --output="$slurm_log_folder"/%j_%x.log --error="$slurm_log_folder"/%j_%x.err \
-    "$repository_path"/scripts/select_introns.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
+    "$repository_path"/scripts/add_sj_info.sh -i "$sub_folder" -o "$output_folder"/"$sample_name" \
     -d "$docker_image_path" -s "$sj_folder"/"$sample_name" -c "$repository_path"/scripts
   fi
 done

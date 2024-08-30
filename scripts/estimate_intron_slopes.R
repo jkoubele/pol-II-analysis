@@ -6,32 +6,52 @@ library(rjson)
 library(progress)
 
 parser <- ArgumentParser()
-parser$add_argument("--input_folder", help = "Folder containing coverage files.", required = TRUE)
-parser$add_argument("--introns_file", help = "File with introns in .bed format.", required = TRUE)
-parser$add_argument("--output_folder", help = "Folder to which the result will be saved.", required = TRUE)
+parser$add_argument("--input_folder", help = "Folder containing coverage files.", required = TRUE, 
+                    default='/cellfile/datapublic/jkoubele/fli_dr_mice/coverage/no004-0_OD1')
+parser$add_argument("--introns_file", help = "File with introns in .bed format.", required = TRUE,
+                    default='/cellfile/datapublic/jkoubele/reference_genomes/GRCm39/introns.bed')
+parser$add_argument("--output_folder", help = "Folder to which the result will be saved.", required = TRUE,
+                    default='/cellfile/datapublic/jkoubele/fli_dr_mice/intron_slopes/no004-0_OD1')
 args <- parser$parse_args()
 
 
-compute_slope_from_definition <- function(intron_row, strand_coverages, padding = 20, min_length = 50){
+compute_slope_from_definition <- function(intron_row,
+                                          strand_coverages,
+                                          library_size,
+                                          padding = 20,
+                                          min_length = 50){
   start <- intron_row$start
   end <- intron_row$end
   strand <- intron_row$strand
   chromosome <- intron_row$chromosome
   length <- intron_row$length
   if (length <= min_length || length <= 2 * padding) {
-    return(tibble(slope = NA, num_polymerases_per_million_reads=NA))
+    return(tibble(slope=NA,
+                  num_polymerases_per_million_reads=NA,
+                  coverage_5_prime=NA,
+                  coverage_5_prime_without_padding=NA,
+                  coverage_3_prime=NA,
+                  padding=NA,
+                  length_without_padding=NA))
   }
   if(strand == '+'){
     coverage_5_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][start+padding])
+    coverage_5_prime_without_padding <- as.numeric(strand_coverages[[strand]][[chromosome]][start+1])
     coverage_3_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][end-padding])
   }
   else if (strand=='-'){
     coverage_5_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][end-padding])
+    coverage_5_prime_without_padding <- as.numeric(strand_coverages[[strand]][[chromosome]][end-1])
     coverage_3_prime <- as.numeric(strand_coverages[[strand]][[chromosome]][start+padding])
   }
   
-  return(tibble(slope = -(coverage_5_prime-coverage_3_prime) / (length - 2*padding),
-                num_polymerases_per_million_reads=coverage_5_prime-coverage_3_prime))
+  return(tibble(slope = -(coverage_5_prime-coverage_3_prime) / (length - 2*padding) / library_size * 1e6,
+                num_polymerases_per_million_reads=(coverage_5_prime-coverage_3_prime) / library_size * 1e6,
+                coverage_5_prime=coverage_5_prime,
+                coverage_5_prime_without_padding=coverage_5_prime_without_padding,
+                coverage_3_prime=coverage_3_prime,
+                padding=padding,
+                length_without_padding=(length - 2*padding)))
   
 }
 
@@ -91,11 +111,12 @@ introns$length <- introns$end - introns$start
 bed_graph_forward <- import.bedGraph(paste0(input_folder, '/coverage_forward_nascent_introns.bedGraph'))
 bed_graph_reverse <- import.bedGraph(paste0(input_folder, '/coverage_reverse_nascent_introns.bedGraph'))
 
-strand_coverages_of_read_pairs <- list('+' = coverage(bed_graph_forward, weight = bed_graph_forward$score / library_size * 1e6),
-                                       '-' = coverage(bed_graph_reverse, weight = bed_graph_reverse$score / library_size * 1e6))
+strand_coverages_of_read_pairs <- list('+' = coverage(bed_graph_forward, weight = bed_graph_forward$score),
+                                       '-' = coverage(bed_graph_reverse, weight = bed_graph_reverse$score))
 
 compute_with_coverage <- partial(compute_slope_from_definition,
-                                 strand_coverages = strand_coverages_of_read_pairs)
+                                 strand_coverages=strand_coverages_of_read_pairs,
+                                 library_size=library_size)
 pb <- progress_bar$new(
   format = "  Computing intron slopes: [:bar] :percent in :elapsed",
   total = nrow(introns),

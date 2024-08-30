@@ -9,16 +9,9 @@ SJ_FILE_COLUMNS = ['chromosome', 'start', 'end', 'strand', 'intron_motif',
                    'annotated', 'reads_unique', 'reads_multimapped', 'max_overhang']
 
 
-def load_and_preprocess_slopes(slopes_file: Path, min_r_squared=0.01) -> pd.DataFrame:
+def load_slopes(slopes_file: Path) -> pd.DataFrame:
     slopes_df = pd.read_csv(slopes_file, sep='\t')
     slopes_df['chromosome'] = slopes_df['chromosome'].astype(str)
-    slopes_df = slopes_df.dropna()
-    slopes_df = slopes_df[slopes_df['slope'] < 0]
-    if 'r_squared' in slopes_df.columns:
-        slopes_df = slopes_df[slopes_df['r_squared'] > min_r_squared]
-    if 'num_polymerases_per_million_reads' in slopes_df.columns:
-        slopes_df = slopes_df[slopes_df['num_polymerases_per_million_reads'] > 0]
-    slopes_df = slopes_df.reset_index(drop=True)
     return slopes_df
 
 
@@ -38,13 +31,13 @@ def load_and_preprocess_sj(sj_file: Path) -> pd.DataFrame:
     return sj_df
 
 
-def select_intron_slopes_by_sj_evidence(slopes_file: Path, sj_file: Path) -> pd.DataFrame:
+def add_sj_evidence_to_slopes(slopes_file: Path, sj_file: Path) -> pd.DataFrame:
     max_sj_shift = 5
     min_unique_reads_for_intron_evidence = 5
     min_unique_reads_for_nested_splicing = 1
     nested_splicing_padding = 20
 
-    slopes_df = load_and_preprocess_slopes(slopes_file)
+    slopes_df = load_slopes(slopes_file)
     sj_df = load_and_preprocess_sj(sj_file)
     bedtool_slopes = BedTool([Interval(chrom=row['chromosome'],
                                        start=row['start'],
@@ -83,6 +76,7 @@ def select_intron_slopes_by_sj_evidence(slopes_file: Path, sj_file: Path) -> pd.
         nested_region_end = row['end'] - nested_splicing_padding
 
         if nested_region_end <= nested_region_start:
+            evidence_of_sj.append(False)
             evidence_of_nested_sj.append(False)
             continue
 
@@ -95,7 +89,7 @@ def select_intron_slopes_by_sj_evidence(slopes_file: Path, sj_file: Path) -> pd.
         evidence_of_nested_sj.append(nested_sj['reads_unique'].sum() > min_unique_reads_for_nested_splicing)
     slopes_df['evidence_of_sj'] = evidence_of_sj
     slopes_df['evidence_of_nested_sj'] = evidence_of_nested_sj
-    return slopes_df[slopes_df['evidence_of_sj'] & ~slopes_df['evidence_of_nested_sj']]
+    return slopes_df
 
 
 if __name__ == "__main__":
@@ -105,28 +99,28 @@ if __name__ == "__main__":
     parser.add_argument('--output_folder')
     args = parser.parse_args()
 
-    selected_slopes_by_definition = select_intron_slopes_by_sj_evidence(
+    selected_slopes_by_definition = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_by_definition.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
     selected_slopes_by_definition.to_csv(Path(args.output_folder) / 'selected_slopes_by_definition.tsv',
                                          sep='\t',
                                          index=False)
 
-    selected_slopes_read_pairs = select_intron_slopes_by_sj_evidence(
+    selected_slopes_read_pairs = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_read_pairs.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
     selected_slopes_read_pairs.to_csv(Path(args.output_folder) / 'selected_slopes_read_pairs.tsv',
                                       sep='\t',
                                       index=False)
 
-    selected_slopes_nascent_introns = select_intron_slopes_by_sj_evidence(
+    selected_slopes_nascent_introns = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_nascent_introns.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
     selected_slopes_nascent_introns.to_csv(Path(args.output_folder) / 'selected_slopes_nascent_introns.tsv',
                                            sep='\t',
                                            index=False)
 
-    selected_slopes_read_pairs_cummax = select_intron_slopes_by_sj_evidence(
+    selected_slopes_read_pairs_cummax = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_read_pairs_cummax.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
     selected_slopes_read_pairs_cummax.to_csv(Path(args.output_folder) / 'selected_slopes_read_pairs_cummax.tsv',

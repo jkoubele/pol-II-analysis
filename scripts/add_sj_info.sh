@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=select_introns
+#SBATCH --job-name=sj_info
 #SBATCH --ntasks=15
 
 # Function to display usage information
@@ -70,7 +70,7 @@ docker run --rm \
 -v "$output_folder":/output_folder \
 -v "$script_folder":/script_folder \
 --security-opt seccomp=unconfined bioinfo_tools \
-/bin/sh -c "python3 /script_folder/select_introns.py \
+/bin/sh -c "python3 /script_folder/add_sj_info.py \
 --input_folder_slopes /intron_slopes_folder \
 --input_folder_sj /sj_folder \
 --output_folder /output_folder; \
