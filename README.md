@@ -100,7 +100,8 @@ which is more appropriate for total or nascent RNA-seq. Feature count is run by 
 [batch_feature_counts.sh](pipeline/batch_feature_counts.sh), storing the results in the ```feature_counts``` folder.
 9. **Aggregating feature counts**: Previous steps produces one file with counts for each sample.
 For subsequent analysis, it may be more convenient to have the counts aggregated in a single matrix. This
-can be achieved by running the script... --*TODO: add missing script for aggregation*--
+can be achieved by running the script [run_aggregate_feature_counts.sh](pipeline/run_aggregate_feature_counts.sh),
+which stores the results in a folder ```feature_counts_aggregated```.
 10. **Computing coverage**: Although the STAR also produced coverage files, we will use custom script for coverage computation. 
 One issue with STAR coverage files is that the coverage is computed over reads and not read pairs, i.e. the overlapping
 part of read pair is counted twice. We will also compute intronic coverage in a custom way: we will assume
@@ -111,3 +112,6 @@ storing the results in the ```coverage``` folder.
 11. **Slope estimation**: The coverage is used to estimate intronic slopes of transcript coverage by running
 [batch_slope_estimation.sh](pipeline/batch_slope_estimation.sh), storing the results in the
 ```intron_slopes``` folder.
+12. **Adding info about splice junctions**: For subsequent analysis, we would like to use only introns that are actually
+spliced out in our samples. Running the script [batch_add_sj_info.sh](pipeline/batch_add_sj_info.sh) adds information about 
+splice junctions to the files with intron slopes, storing the results in the folder ```intron_slopes_with_sj_info```.
