@@ -129,7 +129,7 @@ compute_with_progress_bar <- function(...) {
 }
 
 slopes_df <- bind_rows(pmap(introns, ~compute_with_progress_bar(list(...))))
-concat_df <- cbind(introns[c("chromosome", "start", "end", "strand", "length")], slopes_df)
+concat_df <- cbind(introns[c("chromosome", "start", "end", "strand", "name", "length")], slopes_df)
 write.table(concat_df, paste0(output_folder, '/slopes_by_definition.tsv'), sep = "\t", row.names = F)
 
 # Compute slopes by OLS:
@@ -171,6 +171,6 @@ for (specification in list(specification_read_pairs, specification_read_pairs_cu
   }
 
   slopes_df <- bind_rows(pmap(introns, ~compute_with_progress_bar(list(...))))
-  concat_df <- cbind(introns[c("chromosome", "start", "end", "strand", "length")], slopes_df)
+  concat_df <- cbind(introns[c("chromosome", "start", "end", "strand", "name", "length")], slopes_df)
   write.table(concat_df, specification$output_file_name, sep = "\t", row.names = F)
 }
