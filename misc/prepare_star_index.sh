@@ -64,6 +64,7 @@ docker run --rm -v "$genome_folder":/genome_folder \
 --genomeFastaFiles /genome_folder/$fasta_file_name
 --sjdbGTFfile /genome_folder/$annotation_gtf_file_name
 --outTmpDir /genome_folder/tmp \
+--genomeSAindexNbases 12 \
 --limitGenomeGenerateRAM 108000000000; \
 chmod 777 -R /genome_folder"
 

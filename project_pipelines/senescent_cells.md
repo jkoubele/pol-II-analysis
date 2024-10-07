@@ -7,4 +7,6 @@
  - Infer strandedness: ```sh run_infer_strandedness.sh -i /data/public/jkoubele/senescent_cells/BAM -o /data/public/jkoubele/senescent_cells/strandedness_info```
  - Feature counts (whole genes): ```sh batch_feature_counts.sh -i /data/public/jkoubele/senescent_cells/BAM -o /data/public/jkoubele/senescent_cells/feature_counts_genes -g /data/public/jkoubele/reference_genomes/GRCh38.p14 -a Homo_sapiens.GRCh38.112.gtf -s 2 -f gene```
  - Feature counts (exons only genes): ```sh batch_feature_counts.sh -i /data/public/jkoubele/senescent_cells/BAM -o /data/public/jkoubele/senescent_cells/feature_counts_exons -g /data/public/jkoubele/reference_genomes/GRCh38.p14 -a Homo_sapiens.GRCh38.112.gtf -s 2 -f exon```
- 
+ - Compute coverage: ```sh batch_compute_coverage.sh -i /data/public/jkoubele/senescent_cells/BAM -o /data/public/jkoubele/senescent_cells/coverage -g /data/public/jkoubele/reference_genomes/GRCh38.p14 -f Homo_sapiens.GRCh38.dna.primary_assembly.fa.fai -s 2```
+ - Slopes estimation: ```sh batch_slope_estimation.sh -i /data/public/jkoubele/senescent_cells/coverage -o /data/public/jkoubele/senescent_cells/intron_slopes -g /data/public/jkoubele/reference_genomes/GRCh38.p14```
+ - Add SJ info: ```sh batch_add_sj_info.sh -i /data/public/jkoubele/senescent_cells/intron_slopes -s /data/public/jkoubele/senescent_cells/BAM -o /data/public/jkoubele/senescent_cells/intron_slopes_with_sj_info```

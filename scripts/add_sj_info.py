@@ -102,27 +102,27 @@ if __name__ == "__main__":
     selected_slopes_by_definition = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_by_definition.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
-    selected_slopes_by_definition.to_csv(Path(args.output_folder) / 'selected_slopes_by_definition.tsv',
+    selected_slopes_by_definition.to_csv(Path(args.output_folder) / 'slopes_by_definition_with_sj.tsv',
                                          sep='\t',
                                          index=False)
 
     selected_slopes_read_pairs = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_read_pairs.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
-    selected_slopes_read_pairs.to_csv(Path(args.output_folder) / 'selected_slopes_read_pairs.tsv',
+    selected_slopes_read_pairs.to_csv(Path(args.output_folder) / 'slopes_read_pairs_with_sj.tsv',
                                       sep='\t',
                                       index=False)
 
     selected_slopes_nascent_introns = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_nascent_introns.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
-    selected_slopes_nascent_introns.to_csv(Path(args.output_folder) / 'selected_slopes_nascent_introns.tsv',
+    selected_slopes_nascent_introns.to_csv(Path(args.output_folder) / 'slopes_nascent_introns_with_sj.tsv',
                                            sep='\t',
                                            index=False)
 
     selected_slopes_read_pairs_cummax = add_sj_evidence_to_slopes(
         slopes_file=Path(args.input_folder_slopes) / 'slopes_read_pairs_cummax.tsv',
         sj_file=Path(args.input_folder_sj) / 'SJ.out.tab')
-    selected_slopes_read_pairs_cummax.to_csv(Path(args.output_folder) / 'selected_slopes_read_pairs_cummax.tsv',
+    selected_slopes_read_pairs_cummax.to_csv(Path(args.output_folder) / 'slopes_read_pairs_cummax_with_sj.tsv',
                                              sep='\t',
                                              index=False)
