@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=estimate_intron_slopes
-#SBATCH --ntasks=15
+#SBATCH --ntasks=3
 
 # Function to display usage information
 usage() {

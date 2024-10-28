@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=sj_info
-#SBATCH --ntasks=15
+#SBATCH --ntasks=3
 
 # Function to display usage information
 usage() {
