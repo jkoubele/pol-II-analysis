@@ -120,8 +120,8 @@ ggplot(intron_counts, aes(x = L2FC_ama1_wt_DE, y = L2FC_ama1_wt)) +
   geom_point(alpha = 0.5) + 
   geom_smooth(method = "lm", color = "blue", se = TRUE) + 
   labs(title = "L2FC of intronic reads vs. L2FC of corresponding genes",
-       x = "L2FC of intronic reads",
-       y = "L2FC of gene expression") +
+       x = "L2FC of gene expression",
+       y = "L2FC of intronic reads") +
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5))  
 

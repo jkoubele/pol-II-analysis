@@ -1,0 +1,11 @@
+- First QC: ```sh batch_qc.sh -i /data/public/jkoubele/apapantonis_AKI46/FASTQ -o /data/public/jkoubele/apapantonis_AKI46/QC_before_trimming```
+- Detecting adapters: ```sh batch_detect_adapers.sh -i /data/public/jkoubele/apapantonis_AKI46/FASTQ -o /data/public/jkoubele/apapantonis_AKI46/detected_adapters```  
+- No adapters were detected, also fastqc reported no adapter content. 
+The reads in FASTQ differ in length and A content drops near read end -> the data seems to be already trimmed for adapters and poly A.  
+- Alignment:  ```sh batch_align.sh -i /data/public/jkoubele/apapantonis_AKI46/FASTQ -o /data/public/jkoubele/apapantonis_AKI46/BAM -g /data/public/jkoubele/reference_genomes/GRCh38.p14```
+- Infer strandedness: ```sh run_infer_strandedness.sh -i /data/public/jkoubele/apapantonis_AKI46/BAM -o /data/public/jkoubele/apapantonis_AKI46/strandedness_info```
+- Feature counts (exons only): ```sh batch_feature_counts.sh -i /data/public/jkoubele/apapantonis_AKI46/BAM -o /data/public/jkoubele/apapantonis_AKI46/feature_counts_exons -g /data/public/jkoubele/reference_genomes/GRCh38.p14 -a Homo_sapiens.GRCh38.112.gtf -s 2 -f exon```
+- Aggregate feature counts (exons only): ```sh run_aggregate_feature_counts.sh -i /data/public/jkoubele/apapantonis_AKI46/feature_counts_exons -o /data/public/jkoubele/apapantonis_AKI46/feature_counts_exons_aggregated```
+- Compute coverage: ```sh batch_compute_coverage.sh -i /data/public/jkoubele/apapantonis_AKI46/BAM -o /data/public/jkoubele/apapantonis_AKI46/coverage -g /data/public/jkoubele/reference_genomes/GRCh38.p14 -f Homo_sapiens.GRCh38.dna.primary_assembly.fa.fai -s 2```
+- Slopes estimation: ```sh batch_slope_estimation.sh -i /data/public/jkoubele/apapantonis_AKI46/coverage -o /data/public/jkoubele/apapantonis_AKI46/intron_slopes -g /data/public/jkoubele/reference_genomes/GRCh38.p14```
+- Ad SJ info: ```sh batch_add_sj_info.sh -i /data/public/jkoubele/apapantonis_AKI46/intron_slopes -s /data/public/jkoubele/apapantonis_AKI46/BAM -o /data/public/jkoubele/apapantonis_AKI46/intron_slopes_with_sj_info```
