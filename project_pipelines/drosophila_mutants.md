@@ -5,3 +5,4 @@
 - Alignment: ```sh batch_align.sh -i /data/public/jkoubele/drosophila_mutants/FASTQ -o /data/public/jkoubele/drosophila_mutants/BAM -g /data/public/jkoubele/reference_genomes/BDGP6.46```
 - Infer strandedness: ```sh run_infer_strandedness.sh -i /data/public/jkoubele/drosophila_mutants/BAM -o /data/public/jkoubele/drosophila_mutants/strandedness_info```
 - Compute coverage: ```sh batch_compute_coverage.sh -i /data/public/jkoubele/drosophila_mutants/BAM -o /data/public/jkoubele/drosophila_mutants/coverage -g /data/public/jkoubele/reference_genomes/BDGP6.46 -f Drosophila_melanogaster.BDGP6.46.dna.toplevel.fa.fai -s 2```
+- Slopes estimation: ```sh batch_slope_estimation.sh -i /data/public/jkoubele/drosophila_mutants/coverage -o /data/public/jkoubele/drosophila_mutants/intron_slopes -g /data/public/jkoubele/reference_genomes/BDGP6.46```
