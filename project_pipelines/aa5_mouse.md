@@ -1,0 +1,14 @@
+- First QC: ```sh batch_qc.sh -i /data/public/jkoubele/aa5_mouse/FASTQ -o /data/public/jkoubele/aa5_mouse/QC_before_trimming```
+- Detecting adapters: ```sh batch_detect_adapers.sh -i /data/public/jkoubele/aa5_mouse/FASTQ -o /data/public/jkoubele/aa5_mouse/detected_adapters```
+- Aggregate adapters: ```sh run_aggregate_adapters.sh -i /data/public/jkoubele/aa5_mouse/detected_adapters -o /data/public/jkoubele/aa5_mouse/aggregated_adapters```
+- Trimming reads: ```sh batch_trimming.sh -i /data/public/jkoubele/aa5_mouse/FASTQ -o /data/public/jkoubele/aa5_mouse/FASTQ_trimmed -a /data/public/jkoubele/aa5_mouse/aggregated_adapters```
+- QC after trimming: ```sh batch_qc.sh -i /data/public/jkoubele/aa5_mouse/FASTQ_trimmed/ -o /data/public/jkoubele/aa5_mouse/QC_after_trimming```
+- Alignment: ```sh batch_align.sh -i /data/public/jkoubele/aa5_mouse/FASTQ_trimmed/ -o /data/public/jkoubele/aa5_mouse/BAM -g /data/public/jkoubele/reference_genomes/GRCm39```
+- Infer strandedness: ```sh run_infer_strandedness.sh -i /data/public/jkoubele/aa5_mouse/BAM -o /data/public/jkoubele/aa5_mouse/strandedness_info```
+- Feature counts: ```sh batch_feature_counts.sh -i /data/public/jkoubele/aa5_mouse/BAM -o /data/public/jkoubele/aa5_mouse/feature_counts -g /data/public/jkoubele/reference_genomes/GRCm39 -a Mus_musculus.GRCm39.112.gtf -s 2```
+- Aggregate feature counts: ``` sh run_aggregate_feature_counts.sh -i /data/public/jkoubele/aa5_mouse/feature_counts -o /data/public/jkoubele/aa5_mouse/feature_counts_aggregated```
+- Feature counts (exons only): ```sh batch_feature_counts.sh -i /data/public/jkoubele/aa5_mouse/BAM -o /data/public/jkoubele/aa5_mouse/feature_counts_exons -g /data/public/jkoubele/reference_genomes/GRCm39 -a Mus_musculus.GRCm39.112.gtf -s 2 -f exon```
+- Aggregate feature counts (exons only): ```sh run_aggregate_feature_counts.sh -i /data/public/jkoubele/aa5_mouse/feature_counts_exons -o /data/public/jkoubele/aa5_mouse/feature_counts_exons_aggregated```
+- Compute coverage: ```sh batch_compute_coverage.sh -i /data/public/jkoubele/aa5_mouse/BAM -o /data/public/jkoubele/aa5_mouse/coverage -g /data/public/jkoubele/reference_genomes/GRCm39 -f Mus_musculus.GRCm39.dna.primary_assembly.fa.fai -s 2```
+- Slopes estimation: ```sh batch_slope_estimation.sh -i /data/public/jkoubele/aa5_mouse/coverage -o /data/public/jkoubele/aa5_mouse/intron_slopes -g /data/public/jkoubele/reference_genomes/GRCm39```
+- Add SJ info: ```sh batch_add_sj_info.sh -i /data/public/jkoubele/aa5_mouse/intron_slopes -s /data/public/jkoubele/aa5_mouse/BAM_before_deduplication -o /data/public/jkoubele/aa5_mouse/selected_intron_slopes```

@@ -149,7 +149,8 @@ specification_nascent_introns <- list(coverage_file_forward = paste0(input_folde
                                             output_file_name = paste0(output_folder, '/slopes_nascent_introns.tsv'),
                                             apply_cummax=FALSE)
 
-for (specification in list(specification_read_pairs, specification_read_pairs_cummax, specification_nascent_introns)) {
+# for (specification in list(specification_read_pairs, specification_read_pairs_cummax, specification_nascent_introns)) {
+for (specification in list(specification_read_pairs)) {
   bed_graph_forward <- import.bedGraph(specification$coverage_file_forward)
   bed_graph_reverse <- import.bedGraph(specification$coverage_file_reverse)
 
