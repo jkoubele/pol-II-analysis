@@ -72,14 +72,14 @@ for (i in seq_len(nrow(intron_counts))) {
   }
   row <- intron_counts[i, , drop = FALSE]
   gene_name <- rownames(row)
-
+  
   design_matrix <- row |>
     pivot_longer(
       cols = everything(),
       names_to = "sample_name",
       values_to = "read_count") |>
     left_join(metadata, by = 'sample_name')
-
+  
   # model <- glm.nb(formula=update(design_formula, read_count ~ . + offset(log(library_size))),
   #     data=design_matrix)
   model <- tryCatch({
@@ -92,12 +92,12 @@ for (i in seq_len(nrow(intron_counts))) {
     next
   }
   model_summary <- summary(model)
-
+  
   for (result_name in names(deseq_results)) {
     result_name_split <- strsplit(result_name, "_")[[1]]
     glm_coefficient_name <- paste0(result_name_split[1], result_name_split[2])
     coefficient_estimate <- model_summary$coefficients[glm_coefficient_name, "Estimate"]
-
+    
     # Convert DeSeq2 L2FC to LFC with natural log:  
     deseq_lfc <- tryCatch({ deseq_results[[result_name]]['log2FoldChange'][[gene_name, 1]] / log2(exp(1)) },
                           error = function(e) {
@@ -106,19 +106,19 @@ for (i in seq_len(nrow(intron_counts))) {
     if (is.na(deseq_lfc)) {
       next
     }
-
+    
     hypothesis_test <- linearHypothesis(model, paste(glm_coefficient_name, "=", format(deseq_lfc, scientific = FALSE)))
-
+    
     glm_results <- tibble(gene = gene_name,
                           estimate = coefficient_estimate,
                           deseq_lfc = deseq_lfc,
                           estimate_corrected_by_expression = coefficient_estimate - deseq_lfc,
                           p_value_against_zero = model_summary$coefficients[glm_coefficient_name, "Pr(>|z|)"],
                           p_value_against_deseq_lfc = hypothesis_test$"Pr(>Chisq)"[[2]])
-
+    
     glm_intron_results[[result_name]] <- bind_rows(glm_intron_results[[result_name]], glm_results)
   }
-
+  
 }
 
 for (constrast_name in names(glm_intron_results)) {
@@ -132,11 +132,11 @@ for (constrast_name in names(glm_intron_results)) {
     )) |>
     mutate(padjust = pmax(padjust, 1e-20),
            estimate_corrected_by_expression = pmin(pmax(estimate_corrected_by_expression, -10), 10))
-
+  
   print(constrast_name)
   print(dplyr::count(volcano_data, color))
   print('-----------------------------------------')
-
+  
   plot <- ggplot(volcano_data, aes(x = estimate_corrected_by_expression, y = -log10(padjust), color = color)) +
     geom_point(alpha = 0.5) +  # Set point transparency
     scale_color_manual(values = c("Not Significant" = "grey", "Upregulated" = "red", "Downregulated" = "blue")) +

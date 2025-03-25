@@ -9,6 +9,8 @@
 - UMI deduplication: ```sh batch_deduplicate_umi.sh -i /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication/ -o /data/public/jkoubele/fli_dr_mice/BAM```
 - Feature counts: ```sh batch_feature_counts.sh -i /data/public/jkoubele/fli_dr_mice/BAM -o /data/public/jkoubele/fli_dr_mice/feature_counts -g /data/public/jkoubele/reference_genomes/GRCm39 -a Mus_musculus.GRCm39.112.gtf -s 2```
 - Aggregate feature counts: ``` sh run_aggregate_feature_counts.sh -i /data/public/jkoubele/fli_dr_mice/feature_counts -o /data/public/jkoubele/fli_dr_mice/feature_counts_aggregated```
+- Feature counts (exons only): ```sh batch_feature_counts.sh -i /data/public/jkoubele/fli_dr_mice/BAM -o /data/public/jkoubele/fli_dr_mice/feature_counts_exons -g /data/public/jkoubele/reference_genomes/GRCm39 -a Mus_musculus.GRCm39.112.gtf -s 2 -f exon```
+- Aggregate feature counts (exons only): ```sh run_aggregate_feature_counts.sh -i /data/public/jkoubele/fli_dr_mice/feature_counts_exons -o /data/public/jkoubele/fli_dr_mice/feature_counts_exons_aggregated```
 - Compute coverage: ```sh batch_compute_coverage.sh -i /data/public/jkoubele/fli_dr_mice/BAM -o /data/public/jkoubele/fli_dr_mice/coverage -g /data/public/jkoubele/reference_genomes/GRCm39 -f Mus_musculus.GRCm39.dna.primary_assembly.fa.fai -s 2```
 - Slopes estimation: ```sh batch_slope_estimation.sh -i /data/public/jkoubele/fli_dr_mice/coverage -o /data/public/jkoubele/fli_dr_mice/intron_slopes -g /data/public/jkoubele/reference_genomes/GRCm39```
 - Add SJ info: ```sh batch_add_sj_info.sh -i /data/public/jkoubele/fli_dr_mice/intron_slopes -s /data/public/jkoubele/fli_dr_mice/BAM_before_deduplication -o /data/public/jkoubele/fli_dr_mice/selected_intron_slopes```
