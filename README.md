@@ -1,3 +1,9 @@
+
+# OUTDATED CODE
+
+The code in this repository is outdated. I reworked the preprocessing pipeline, as well as the statistical model; the up-to-date
+code is located in this repository: [https://github.com/jkoubele/pol-ii-speed](https://github.com/jkoubele/pol-ii-speed).
+
 # pol-II-analysis
 
 This repository contains a pipeline for processing total or nascent RNA-seq data,
